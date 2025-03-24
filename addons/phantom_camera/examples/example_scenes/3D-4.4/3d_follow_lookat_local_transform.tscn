@@ -1,0 +1,137 @@
+[gd_scene load_steps=15 format=3 uid="uid://dprmrem37xf5c"]
+
+[ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="1_jqiwv"]
+[ext_resource type="Script" uid="uid://d2oc8taruw4lp" path="res://addons/phantom_camera/examples/scripts/3D/ship_controller_4.4.gd" id="2_jqiwv"]
+[ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="3_e4xpf"]
+[ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="4_6aufw"]
+
+[sub_resource type="Environment" id="Environment_jqiwv"]
+background_mode = 1
+background_color = Color(0.0851142, 0.078621, 0.246836, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_fvb83"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_liavq"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_jqiwv"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_sbpjq"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jqiwv"]
+albedo_color = Color(1.82897e-06, 0.755901, 0.729579, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f7001"]
+albedo_color = Color(0.416006, 0.318455, 0.162907, 1)
+
+[sub_resource type="TextMesh" id="TextMesh_jqiwv"]
+text = "THIS WAY UP
+
+WASD to steer
+Shift + Ctrl to speed up /slow down"
+font_size = 50
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e4xpf"]
+emission_enabled = true
+emission = Color(0.798032, 0.744409, 0.334018, 1)
+emission_energy_multiplier = 1.25
+
+[sub_resource type="Resource" id="Resource_88ty8"]
+script = ExtResource("4_6aufw")
+duration = 1.0
+transition = 0
+ease = 2
+
+[node name="3dFollowLookatLocalTransform" type="Node3D"]
+
+[node name="MainCamera3D" type="Camera3D" parent="."]
+unique_name_in_owner = true
+physics_interpolation_mode = 1
+transform = Transform3D(1, 0, 0, 0, 0.963065, 0.269269, 0, -0.269269, 0.963065, 0, 0.767215, 2.74402)
+environment = SubResource("Environment_jqiwv")
+
+[node name="PhantomCameraHost" type="Node" parent="MainCamera3D"]
+process_priority = 300
+process_physics_priority = 300
+script = ExtResource("1_jqiwv")
+metadata/_custom_type_script = "uid://bd046eokvcnu2"
+
+[node name="Ship" type="CharacterBody3D" parent="."]
+script = ExtResource("2_jqiwv")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ship"]
+transform = Transform3D(1, 0, 0, 0, -0.00382224, 0.999993, 0, -0.999993, -0.00382224, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_fvb83")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Ship"]
+transform = Transform3D(3, 0, 0, 0, -0.0525632, 0.199931, 0, -1.99931, -0.00525632, 0, -0.279029, -0.0362758)
+mesh = SubResource("PrismMesh_liavq")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Ship"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 2, -0.4, 0, 0.095)
+mesh = SubResource("BoxMesh_jqiwv")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Ship"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 2, 0.4, 0, 0.095)
+mesh = SubResource("BoxMesh_jqiwv")
+
+[node name="FollowTarget" type="Node3D" parent="Ship"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.822, 2.691)
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(8.24096, 5.03977, -2.58597, -5.66449, 7.33208, -3.76219, 1.49012e-07, 4.56523, 8.89711, 6.71447, 8.0344, -23.5456)
+mesh = SubResource("BoxMesh_sbpjq")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_jqiwv")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(0.0640963, 0.631616, 1.13444, -1.01565, 0.732013, -0.350175, -0.808923, -0.869033, 0.529551, 6.60299, 0.155759, 7.15151)
+mesh = SubResource("BoxMesh_sbpjq")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_f7001")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.618709, -0.320428, -0.717304, 0.461191, 0.8873, 0.00143227, 0.636005, -0.3317, 0.696759, -18.8706, 11.6481, 26.6715)
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0857, -5.21574)
+mesh = SubResource("TextMesh_jqiwv")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(-3.96232, -0.490991, -0.242865, 0.547773, -3.55158, -1.75677, 1.77346e-08, -1.77347, 3.58536, -17.6897, 11.4485, 25.0736)
+mesh = SubResource("BoxMesh_sbpjq")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_e4xpf")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(-1.24519, -1.34406, 0.801879, -1.56253, 1.12617, -0.53873, -0.0894846, -0.96189, -1.75122, -11.9699, 6.35719, 2.24484)
+mesh = SubResource("BoxMesh_sbpjq")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_f7001")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(-0.605961, -0.58063, 0.543765, -0.781265, 0.563087, -0.269365, -0.149786, -0.588049, -0.794835, -12.5478, -4.68835, 7.15151)
+mesh = SubResource("BoxMesh_sbpjq")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_f7001")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1.43679, -0.561822, 1.27279, -0.621989, 1.37726, 1.31007, -1.2445, -1.33697, 0.814694, 13.1722, -17.3802, -8.94525)
+mesh = SubResource("BoxMesh_sbpjq")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_f7001")
+
+[node name="PhantomCamera3D" type="Node3D" parent="." node_paths=PackedStringArray("follow_target", "look_at_target")]
+transform = Transform3D(1, 0, 0, 0, 0.956639, 0.292133, 0, -0.292218, 0.956361, 0, 0.822, 2.691)
+top_level = true
+script = ExtResource("3_e4xpf")
+follow_mode = 2
+follow_target = NodePath("../Ship/FollowTarget")
+look_at_mode = 2
+look_at_target = NodePath("../Ship")
+tween_resource = SubResource("Resource_88ty8")
+follow_local_rotation = true
+follow_damping = true
+follow_damping_value = Vector3(0.5, 0.5, 0.5)
+metadata/_custom_type_script = "uid://csjccrhj5wnx7"

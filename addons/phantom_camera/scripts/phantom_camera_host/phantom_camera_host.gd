@@ -722,6 +722,12 @@ func _check_pcam_physics() -> void:
 
 
 func _process(delta: float) -> void:
+	# Check that the active pcam is still valid. This can trigger if an active PCam's script is 
+	# changed or removed in editor. If left uncaught, the editor will spam errors and eventually crash.
+	if (_is_2d and not is_instance_valid(_active_pcam_2d)) or not is_instance_valid(_active_pcam_3d):
+		_active_pcam_missing = true
+		_find_pcam_with_highest_priority()
+	
 	if _active_pcam_missing: return
 
 	if not _follow_target_physics_based: _tween_follow_checker(delta)

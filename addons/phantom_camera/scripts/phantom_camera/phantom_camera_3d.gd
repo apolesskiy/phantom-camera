@@ -312,6 +312,12 @@ enum FollowLockAxis {
 	set = set_follow_offset,
 	get = get_follow_offset
 
+## If true, the [param PhantomCamera3D] will use its follow target's local up
+## vector instead of the world up vector to align itself.
+@export var follow_local_rotation: bool = false:
+	set = set_follow_local_rotation,
+	get = get_follow_local_rotation
+
 ## Applies a damping effect on the camera's movement.
 ## Leading to heavier / slower camera movement as the targeted node moves around.
 ## This is useful to avoid sharp and rapid camera movement.
@@ -618,6 +624,11 @@ func _validate_property(property: Dictionary) -> void:
 			if not follow_mode == FollowMode.GROUP or \
 			auto_follow_distance: \
 				property.usage = PROPERTY_USAGE_NO_EDITOR
+
+	if property.name == "follow_local_rotation":
+		if follow_mode == FollowMode.NONE or \
+		follow_mode == FollowMode.GROUP:
+			property.usage = PROPERTY_USAGE_NO_EDITOR
 
 	###############
 	## Group Follow
@@ -1013,7 +1024,7 @@ func _interpolate_position(target_position: Vector3, delta: float, camera_target
 
 func _interpolate_rotation(target_trans: Vector3, delta: float) -> void:
 	var direction: Vector3 = (target_trans - global_position + look_at_offset).normalized()
-	var target_basis: Basis = Basis().looking_at(direction)
+	var target_basis: Basis = _calculate_target_basis(direction)
 	var target_quat: Quaternion = target_basis.get_rotation_quaternion().normalized()
 	if look_at_damping:
 		var current_quat: Quaternion = quaternion.normalized()
@@ -1045,6 +1056,23 @@ func _interpolate_rotation(target_trans: Vector3, delta: float) -> void:
 	else:
 		_transform_output.basis = Basis(target_quat)
 		quaternion = target_quat
+
+
+func _calculate_target_basis(look_target: Vector3) -> Basis:
+	var basis: Basis = Basis()
+	# If using global rotation, use the default basis.
+	if not get_follow_local_rotation():	
+		return Basis().looking_at(look_target)
+
+	# If single follow target, just use its basis.
+	if not _has_multiple_follow_targets:
+		basis = get_follow_target().global_basis
+	else:
+		# If multiple follow targets, calculate the average basis.
+		for target in _follow_targets:
+			basis = basis * target.global_basis
+
+	return basis.looking_at(look_target, basis.y)
 
 
 func _smooth_damp(target_axis: float, self_axis: float, index: int, current_velocity: float, set_velocity: Callable, damping_time: float, delta: float) -> float:
@@ -1483,6 +1511,13 @@ func set_follow_offset(value: Vector3) -> void:
 func get_follow_offset() -> Vector3:
 	return follow_offset
 
+## Assigns a new [param bool] for the [param follow_offset] property.
+func set_follow_local_rotation(value: bool) -> void:
+	follow_local_rotation = value
+
+## Gets the current [member follow_local_rotation] property.
+func get_follow_local_rotation() -> bool:
+	return follow_local_rotation
 
 ## Enables or disables [member follow_damping].
 func set_follow_damping(value: bool) -> void:
