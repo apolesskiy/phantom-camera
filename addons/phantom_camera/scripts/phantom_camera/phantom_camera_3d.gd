@@ -1013,8 +1013,24 @@ func _interpolate_position(target_position: Vector3, delta: float, camera_target
 
 func _interpolate_rotation(target_trans: Vector3, delta: float) -> void:
 	var direction: Vector3 = (target_trans - global_position + look_at_offset).normalized()
-	var target_basis: Basis = Basis().looking_at(direction)
-	var target_quat: Quaternion = target_basis.get_rotation_quaternion().normalized()
+	
+	# If we are in the same location as our target, it does not make sense to rotate to face it.
+	if direction.is_zero_approx():
+		return
+
+	# Use our current global basis as the default.
+	var want_basis = global_basis
+	# Default target basis is global Z up.
+	var reference_basis = Basis()
+
+	# Check for gimbal lock. In case of gimbal lock, we can still face our target, but we
+	# need to choose a different rotation. Use our local rotation for smooth-ish motion.
+	if abs(direction.dot(reference_basis.y)) == 1:
+		reference_basis = global_basis
+
+	want_basis = reference_basis.looking_at(direction, reference_basis.y)
+
+	var target_quat: Quaternion = want_basis.get_rotation_quaternion().normalized()
 	if look_at_damping:
 		var current_quat: Quaternion = quaternion.normalized()
 		var damping_time: float = max(0.0001, look_at_damping_value)
